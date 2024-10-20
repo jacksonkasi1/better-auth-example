@@ -1,0 +1,37 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node -r dist/index.js",
+    "dev": "nodemon --watch src --exec node --loader ts-node/esm src/index.ts",
+    "db:generate": "drizzle-kit generate --config=./src/drizzle.config.ts",
+    "db:push": "drizzle-kit push --config=./src/drizzle.config.ts",
+    "db:migrate": "drizzle-kit generate --config=./src/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=./src/drizzle.config.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.7",
+    "@types/nodemon": "^1.19.6",
+    "drizzle-kit": "^0.26.2",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "@libsql/kysely-libsql": "^0.4.1",
+    "better-auth": "0.5.2-beta.16",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.35.2",
+    "express": "^4.21.1"
+  }
+}

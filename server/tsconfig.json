@@ -10,6 +10,10 @@
     "skipLibCheck": true,                        /* Skip type checking of all declaration files */
     "forceConsistentCasingInFileNames": true,    /* Ensure consistent casing in file names */
 
+    "allowImportingTsExtensions": true,          /* Allow importing of TypeScript modules using .ts extension */
+    "noEmit": true,                              /* Do not emit output files */
+
+
     /* Module Resolution */
     "moduleResolution": "node",                  /* Use Node.js module resolution strategy */
     "resolveJsonModule": true,                   /* Allow importing JSON modules */

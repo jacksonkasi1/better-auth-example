@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { multiSession } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db, users, sessions } from './db/schema';
+import { db, users, sessions } from './db/schema.ts';
 
 // Ensure environment variables are correctly typed and checked
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
@@ -25,6 +25,10 @@ export const auth = betterAuth({
       clientId: GOOGLE_CLIENT_ID,     // Google OAuth client ID
       clientSecret: GOOGLE_CLIENT_SECRET, // Google OAuth client secret
     },
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID as string, 
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string, 
+  },
   },
   plugins: [
     multiSession({

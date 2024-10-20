@@ -1,8 +1,9 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { auth } from './auth'; // Import your Better Auth instance
-import { sessionMiddleware } from './middleware/sessionMiddleware'; // Import session middleware
+import { auth } from './auth.ts'; // Import your Better Auth instance
+import { sessionMiddleware } from './middleware/sessionMiddleware.ts'; // Import session middleware
 import { toNodeHandler } from 'better-auth/node'; // Use toNodeHandler for Node.js-based frameworks
+import morgan from 'morgan'; // Import morgan
 
 const app = express();
 
@@ -15,8 +16,15 @@ app.use(express.json());
 // Apply session middleware to every request
 app.use(sessionMiddleware);
 
+// Use morgan for logging incoming requests
+app.use(morgan('combined')); // Logs in Apache combined format
+
 // Handle authentication routes using toNodeHandler from Better Auth
-app.all('/api/auth/*', toNodeHandler(auth)); // Mount the Better Auth handler
+app.all('/api/auth/*', (req, res, next) => {
+  console.log('Request body:', req.body);
+  next();
+}, toNodeHandler(auth));
+
 
 // Define a public API route (accessible to everyone)
 app.get('/api/public-api', (req: Request, res: Response) => {

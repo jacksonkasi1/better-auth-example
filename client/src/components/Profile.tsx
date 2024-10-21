@@ -16,7 +16,12 @@ interface UserProfile {
 
 export const Profile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false); // Track hydration state
   const { data: session, isPending, error } = useSession(); // Proper use of useSession hook
+
+  useEffect(() => {
+    setIsHydrated(true); // Set hydrated to true when client-side rendering starts
+  }, []);
 
   useEffect(() => {
     if (session && session.user) {
@@ -25,6 +30,9 @@ export const Profile = () => {
       setProfile(null);
     }
   }, [session]);
+
+  // If hydration hasn't completed yet, return nothing or a fallback
+  if (!isHydrated) return null;
 
   if (isPending) return <div>Loading...</div>;
 

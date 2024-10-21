@@ -10,7 +10,7 @@ export const AuthButton = () => {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/profile', // Redirect to profile page after successful sign-in
+        callbackURL: '/', // Redirect to profile page after successful sign-in
       });
     } catch (error) {
       console.error('Error during sign-in:', error);

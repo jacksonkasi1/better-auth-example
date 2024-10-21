@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { multiSession } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db, user, session } from "./db/schema.ts";
+import { db } from "./db/schema.ts";
+import * as schema from "./db/schema.ts";
 
 // Ensure environment variables are correctly typed and checked
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
@@ -17,10 +18,7 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite", // or 'pg' or 'mysql'
-    schema: {
-      user, // Schema for the users table
-      session, // Schema for the sessions table
-    },
+    schema
   }),
   socialProviders: {
     google: {
@@ -37,7 +35,11 @@ export const auth = betterAuth({
       maximumSessions: 1, // Limit to 1 session per user
     }),
   ],
-  advanced: {
-    disableCSRFCheck: true, // Disable CSRF check for API routes
-  },
+  accountLinking: {
+    enabled: true,
+    trustedProviders: ["google", "github"],
+}
+  // advanced: {
+  //   disableCSRFCheck: true, // Disable CSRF check for API routes
+  // },
 });

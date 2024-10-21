@@ -8,6 +8,13 @@
       "when": 1729441755645,
       "tag": "0000_public_miracleman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1729478892611,
+      "tag": "20241021024812_smooth_network",
+      "breakpoints": true
     }
   ]
 }

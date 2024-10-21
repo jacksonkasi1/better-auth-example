@@ -1,11 +1,9 @@
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  out: '../drizzle',
+  out: './drizzle',
   schema: 'src/db/schema.ts',
   dialect: 'turso',
-
-
   schemaFilter: "public",
   tablesFilter: "*",
   introspect: {

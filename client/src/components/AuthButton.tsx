@@ -1,9 +1,7 @@
 'use client';
-import { createAuthClient } from 'better-auth/react'; // Correct import for React client
 
-const authClient = createAuthClient({
-  baseURL: 'http://localhost:5000/api/auth' // Ensure this URL is correct for your auth server
-});
+import { authClient } from "@/lib/auth-client";
+
 
 export const AuthButton = () => {
   const signInWithGoogle = async () => {

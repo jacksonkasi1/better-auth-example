@@ -18,7 +18,7 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite", // or 'pg' or 'mysql'
-    schema
+    schema,
   }),
   socialProviders: {
     google: {
@@ -38,8 +38,8 @@ export const auth = betterAuth({
   accountLinking: {
     enabled: true,
     trustedProviders: ["google", "github"],
-}
-  // advanced: {
-  //   disableCSRFCheck: true, // Disable CSRF check for API routes
-  // },
+  },
+  advanced: {
+    disableCSRFCheck: true, // Disable CSRF check for API routes
+  },
 });

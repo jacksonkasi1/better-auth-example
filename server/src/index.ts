@@ -10,7 +10,7 @@ const app = express();
 // Enable CORS for your frontend
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000" ], // replace with your origin
+    origin: ["http://localhost:3000", "http://localhost:5000"], // replace with your origin
     maxAge: 600,
     credentials: true,
   }),
@@ -23,14 +23,15 @@ app.use(sessionMiddleware);
 app.use(morgan("combined")); // Logs in Apache combined format
 
 // Handle authentication routes using toNodeHandler from Better Auth
-app.all(
-  "/api/auth/*",
-  (req, res, next) => {
+app.all("/api/auth/*", async (req, res, next) => {
+  try {
     console.log("Request body:", req.body);
-    next();
-  },
-  toNodeHandler(auth),
-);
+    await toNodeHandler(auth)(req, res);
+  } catch (error) {
+    console.error("Error in Better Auth:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // Parse incoming JSON requests
 app.use(express.json());

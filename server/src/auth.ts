@@ -35,4 +35,7 @@ export const auth = betterAuth({
       maximumSessions: 1,  // Limit to 1 session per user
     }),
   ],
+  advanced: {
+    disableCSRFCheck: true, // Disable CSRF check for API routes
+  }
 });

@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node -r dist/index.js",
     "dev": "nodemon --watch src --exec node --loader ts-node/esm src/index.ts",
+    "deno": "deno run --allow-read --allow-env --allow-net src/index.ts",
     "db:generate": "drizzle-kit generate --config=./src/drizzle.config.ts",
     "db:push": "drizzle-kit push --config=./src/drizzle.config.ts",
     "db:migrate": "drizzle-kit generate --config=./src/drizzle.config.ts",

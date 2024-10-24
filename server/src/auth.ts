@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { multiSession } from "better-auth/plugins";
+import { bearer } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db/schema.ts";
 import * as schema from "./db/schema.ts";
@@ -31,9 +31,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    multiSession({
-      maximumSessions: 1, // Limit to 1 session per user
-    }),
+    bearer(), // Enable Bearer token authentication
   ],
   accountLinking: {
     enabled: true,

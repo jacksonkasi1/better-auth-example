@@ -20,7 +20,7 @@ app.use(
 app.use(sessionMiddleware);
 
 // Use morgan for logging incoming requests
-// app.use(morgan("combined")); // Logs in Apache combined format
+app.use(morgan("combined")); // Logs in Apache combined format
 
 // Handle authentication routes using toNodeHandler from Better Auth
 app.all("/api/auth/*", async (req, res, next) => {

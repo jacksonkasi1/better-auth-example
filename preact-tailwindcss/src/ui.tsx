@@ -1,12 +1,15 @@
 import { render } from '@create-figma-plugin/ui'
 import { h } from 'preact'
 import '!./output.css'
+import { AuthButton } from './components/AuthButton'
+import { Profile } from './components/Profile'
 
 function Plugin () {
   return (
-    <h1 class="text-3xl font-bold underline">
-      Hello, World!
-    </h1>
+    <div className="p-10">
+      <AuthButton />
+      <Profile />
+    </div>
   )
 }
 

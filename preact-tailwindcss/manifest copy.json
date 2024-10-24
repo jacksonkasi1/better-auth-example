@@ -1,0 +1,9 @@
+{
+  "api": "1.0.0",
+  "editorType": ["figma"],
+  "id": "better-auth",
+  "name": "better-auth - Preact Figma Plugin example",
+  "main": "build/main.js",
+  "ui": "build/ui.js",
+  "networkAccess": { "allowedDomains": ["http://localhost:5000"] }
+}

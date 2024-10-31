@@ -1,22 +1,23 @@
 // plugin/AuthButton.tsx
 import { h } from "preact";
 import { FunctionComponent } from "preact";
-import { v4 as uuidv4 } from "uuid"; // Import uuid
-import { connectToWebSocket } from "../lib/ws-client"; // WebSocket utility
+import { v4 as uuidv4 } from "uuid";
+import { connectToWebSocket } from "../lib/ws-client";
+import { useUserStore } from "../lib/useUserStore"; // Import Zustand store
 
 export const AuthButton: FunctionComponent = () => {
+  const setSessionId = useUserStore((state) => state.setSessionId);
+
   const signInWithGoogle = async () => {
     try {
-      // Generate a unique UUID for the plugin session
       const pluginCode = uuidv4();
-
-      // Open the frontend login page with the UUID in the URL
       const loginUrl = `http://localhost:3000/plugin-login?code=${pluginCode}`;
       window.open(loginUrl, "_blank");
 
       // Connect to WebSocket using pluginCode as channel ID
       connectToWebSocket(pluginCode, (sessionId: string) => {
         console.log("Session ID received via WebSocket:", sessionId);
+        setSessionId(sessionId); // Store sessionId in Zustand store
       });
     } catch (error) {
       console.error("Error during sign-in:", error);

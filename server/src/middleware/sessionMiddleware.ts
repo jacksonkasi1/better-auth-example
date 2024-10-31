@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';  // Import Express types
-import { auth } from '../auth.ts';  // Import your Better Auth instance
+import { Request, Response, NextFunction } from "express"; // Import Express types
+import { auth } from "../auth.ts"; // Import your Better Auth instance
 
 // Define the session interface (if needed, based on Better Auth session structure)
 interface Session {
@@ -24,12 +24,27 @@ declare global {
 }
 
 // Define the middleware
-export const sessionMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const sessionMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
+    const from = req?.query.from as string | undefined;
+    console.log("from:", from);
+    const token = req?.query?.token as string | undefined;
+    console.log("token:", token);
+
+    if (token) {
+      req.headers.authorization = `Bearer ${token}`;
+    }
+
     // Fetch the session using headers (which might include cookies or tokens)
     const session = await auth.api.getSession({
-      headers: new Headers(req.headers as Record<string, string>)
+      headers: new Headers(req.headers as Record<string, string>),
     });
+
+    console.log("Session:", session);
 
     // Attach the session object to the request
     if (session) {
@@ -50,8 +65,8 @@ export const sessionMiddleware = async (req: Request, res: Response, next: NextF
     // Proceed to the next middleware or route handler
     next();
   } catch (error) {
-    console.error('Error in sessionMiddleware:', error);
+    console.error("Error in sessionMiddleware:", error);
     // Handle error
-    res.status(500).json({ error: 'Failed to retrieve session' });
+    res.status(500).json({ error: "Failed to retrieve session" });
   }
 };

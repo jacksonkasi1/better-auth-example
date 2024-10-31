@@ -14,11 +14,12 @@ const wsClients = new Map<string, WsWebSocket>();
 // Enable CORS for your frontend
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
+    origin: ["http://localhost:3000", "http://localhost:5000", '*'],
     maxAge: 600,
     credentials: true,
   }),
 );
+
 
 // Custom middleware to log the origin
 app.use((req, res, next) => {
@@ -73,7 +74,9 @@ app.all("/api/auth/*", async (req, res, next) => {
         client.send(JSON.stringify({ sessionId }));
         client.close(); // Close the WebSocket connection after sending the session ID
         wsClients.delete(pluginCode); // Remove client from the map
-        console.log(`WebSocket connection closed. 🔴 Plugin code: ${pluginCode}`);
+        console.log(
+          `WebSocket connection closed. 🔴 Plugin code: ${pluginCode}`,
+        );
       }
     }
   } catch (error) {
@@ -124,8 +127,6 @@ app.get("/api/me", (req: Request, res: Response) => {
     data: session.user,
   });
 });
-
-
 
 // Start the server
 const PORT = process.env.PORT || 5000;

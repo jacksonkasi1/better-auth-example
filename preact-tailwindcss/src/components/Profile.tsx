@@ -1,27 +1,62 @@
 import { h } from "preact";
 import { useEffect, useState } from "preact/hooks";
-
-interface UserProfile {
-  id: string;
-  name?: string;
-  email?: string;
-  image?: string;
-}
+import { useUserStore } from "../lib/useUserStore"; // Import Zustand store
 
 export const Profile = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [bearerToken, setBearerToken] = useState<string | null>(null);
-  const [apiResponse, setApiResponse] = useState<string | null>(null); // Store API response
+  const profile = useUserStore((state) => state.profile);
+  const sessionId = useUserStore((state) => state.sessionId);
+  const setProfile = useUserStore((state) => state.setProfile);
+  const [apiResponse, setApiResponse] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Fetch user profile data when sessionId changes
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!sessionId) {
+        setErrorMessage("No profile found. Please log in.");
+        setProfile(null);
+        return;
+      }
+
+      console.log("Fetching profile data...", sessionId);
+
+      try {
+        const response = await fetch(`http://localhost:8087/api/me`, {
+          method: "GET",
+          headers: {
+            ContentType: "application/json",
+            Authorization: `Bearer ${sessionId}`, // Use sessionId from Zustand store
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch profile. Status: ${response.status}`,
+          );
+        }
+
+        const data = await response.json();
+        setProfile(data); // Update Zustand store with fetched profile
+        setErrorMessage(null); // Clear any previous error
+      } catch (error: any) {
+        console.error("Error fetching profile:", error);
+        setErrorMessage("Error fetching profile data. Please try again.");
+      }
+    };
+
+    fetchProfileData();
+  }, [sessionId, setProfile]);
 
   // API call to /api/private-api
   const callPrivateApi = async () => {
-    if (!bearerToken) return;
+    if (!sessionId) return;
 
     try {
-      const response = await fetch("http://localhost:5000/api/private-api", {
+      const response = await fetch("http://localhost:8087/api/me", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${bearerToken}`, // Send the Bearer token
+          ContentType: "application/json",
+          Authorization: `Bearer ${sessionId}`, // Use sessionId from Zustand store
         },
       });
 
@@ -30,14 +65,17 @@ export const Profile = () => {
       }
 
       const data = await response.json();
-      setApiResponse(JSON.stringify(data, null, 2)); // Store the API response
+      setApiResponse(JSON.stringify(data, null, 2));
     } catch (error: any) {
       console.error("Error calling private API:", error);
       setApiResponse(`Error: ${error?.message || "Unknown error"}`);
     }
   };
 
-  if (!profile) return <div>No profile found. Please log in.</div>;
+  // Render profile or error message if no sessionId
+  if (errorMessage) return <div>{errorMessage}</div>;
+
+  if (!profile) return <div>Loading profile...</div>;
 
   return (
     <div>
@@ -48,7 +86,7 @@ export const Profile = () => {
       {profile.image && <img src={profile.image} alt="profile" />}
       <p>Email: {profile.email}</p>
       <hr />
-      <p>Bearer Token: {bearerToken}</p>
+      <p>Bearer Token: {sessionId}</p>
 
       {/* Button to call the private API */}
       <button className="btn" onClick={callPrivateApi}>

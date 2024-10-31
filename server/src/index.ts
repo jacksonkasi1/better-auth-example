@@ -4,23 +4,36 @@ import { auth } from "./auth.ts"; // Import your Better Auth instance
 import { sessionMiddleware } from "./middleware/sessionMiddleware.ts"; // Import session middleware
 import { toNodeHandler } from "better-auth/node"; // Use toNodeHandler for Node.js-based frameworks
 import morgan from "morgan"; // Import morgan
+import querystring from "node:querystring";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 const app = express();
+
+// In-memory storage for clients connected via SSE
+const sseClients = new Map();
 
 // Enable CORS for your frontend
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"], // replace with your origin
+    origin: ["http://localhost:3000", "http://localhost:5000"],
     maxAge: 600,
     credentials: true,
   }),
 );
 
-// Apply session middleware to every request
-app.use(sessionMiddleware);
+// Custom middleware to log the origin
+app.use((req, res, next) => {
+  const origin = req.headers.origin || "Unknown Origin";
+  console.log(`🔴 Request received from origin: ${origin}`);
+  next();
+});
 
 // Use morgan for logging incoming requests
 app.use(morgan("combined")); // Logs in Apache combined format
+
+// Apply session middleware to every request
+app.use(sessionMiddleware);
 
 // Handle authentication routes using toNodeHandler from Better Auth
 app.all("/api/auth/*", async (req, res, next) => {
@@ -36,12 +49,29 @@ app.all("/api/auth/*", async (req, res, next) => {
 // Parse incoming JSON requests
 app.use(express.json());
 
+// SSE endpoint for Figma plugin to receive login updates
+app.get("/api/sse", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  const clientId = uuidv4();
+  sseClients.set(clientId, res);
+
+  req.on("close", () => {
+    sseClients.delete(clientId);
+    res.end();
+  });
+});
+
 // Define a public API route (accessible to everyone)
 app.get("/api/public-api", (req: Request, res: Response) => {
   res.json({
     message: "This is public data accessible to anyone.",
   });
 });
+
 
 // Define a private API route (only accessible if authenticated)
 // @ts-ignore

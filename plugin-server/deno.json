@@ -1,0 +1,17 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-net --allow-env --allow-read src/main.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.6.8",
+    "@libsql/client": "npm:@libsql/client@^0.14.0",
+    "better-auth": "npm:better-auth@^0.6.2",
+    "dotenv": "npm:dotenv@^16.4.5",
+    "drizzle-kit": "npm:drizzle-kit@^0.27.0",
+    "drizzle-orm": "npm:drizzle-orm@^0.36.0"
+  }
+}

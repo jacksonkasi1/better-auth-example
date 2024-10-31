@@ -4,6 +4,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db/schema.ts";
 import * as schema from "./db/schema.ts";
 
+import process from "node:process";
+
 // Ensure environment variables are correctly typed and checked
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
@@ -36,5 +38,5 @@ export const auth = betterAuth({
   accountLinking: {
     enabled: true,
     trustedProviders: ["google", "github"],
-  },
+  }
 });

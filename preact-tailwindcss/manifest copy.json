@@ -5,5 +5,5 @@
   "name": "better-auth - Preact Figma Plugin example",
   "main": "build/main.js",
   "ui": "build/ui.js",
-  "networkAccess": { "allowedDomains": ["http://localhost:5000"] }
+  "networkAccess": { "allowedDomains": ["http://localhost:8087"], "reasoning": "dev" }
 }

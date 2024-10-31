@@ -1,32 +1,26 @@
 // plugin/AuthButton.tsx
-import { h } from "preact"; // Preact uses `h` from 'preact'
-import { FunctionComponent } from "preact"; // TypeScript types for Preact functional components
-import { authClient } from "../lib/auth-client"; // Custom auth client handling social login
-import { connectToSSE } from "../lib/sse-client"; // SSE utility for listening to events
+import { h } from "preact";
+import { FunctionComponent } from "preact";
+import { v4 as uuidv4 } from "uuid";
+import { connectToWebSocket } from "../lib/ws-client";
+import { useUserStore } from "../lib/useUserStore"; // Import Zustand store
 
 export const AuthButton: FunctionComponent = () => {
+  const setSessionId = useUserStore((state) => state.setSessionId);
+
   const signInWithGoogle = async () => {
     try {
-      // Open a browser window for Google OAuth login
-      const loginUrl = "http://localhost:5000/api/make-connection";
+      const pluginCode = uuidv4();
+      const loginUrl = `http://localhost:3000/plugin-login?code=${pluginCode}`;
       window.open(loginUrl, "_blank");
 
-      // Connect to SSE to listen for login token
-      connectToSSE((token: string) => {
-        console.log("User logged in! Token:", token);
-        // Store the token for API calls, etc.
+      // Connect to WebSocket using pluginCode as channel ID
+      connectToWebSocket(pluginCode, (sessionId: string) => {
+        console.log("Session ID received via WebSocket:", sessionId);
+        setSessionId(sessionId); // Store sessionId in Zustand store
       });
     } catch (error) {
       console.error("Error during sign-in:", error);
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await authClient.signOut();
-      window.location.reload();
-    } catch (error) {
-      console.error("Error during sign-out:", error);
     }
   };
 
@@ -34,9 +28,6 @@ export const AuthButton: FunctionComponent = () => {
     <div>
       <button className="btn" onClick={signInWithGoogle}>
         Sign In with Google
-      </button>
-      <button className="btn" onClick={signOut}>
-        Sign Out
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 # Figma Plugin Authentication with Better Auth
 
-This repository demonstrates how to add authentication to a Figma plugin using [Better Auth](https://github.com/betterauth/betterauth). It leverages WebSocket communication to securely exchange session tokens, providing a smooth login experience for users.
+This repository demonstrates how to add authentication to a Figma plugin using [Better Auth](better-auth.com). It leverages WebSocket communication to securely exchange session tokens, providing a smooth login experience for users.
 
 ## Features
 

@@ -3,32 +3,28 @@ import { h } from "preact";
 import { FunctionComponent } from "preact";
 import { v4 as uuidv4 } from "uuid";
 import { connectToWebSocket } from "../lib/ws-client";
-import { useUserStore } from "../lib/useUserStore"; // Import Zustand store
+import { useUserStore } from "../lib/useUserStore";
 
 export const AuthButton: FunctionComponent = () => {
   const setSessionId = useUserStore((state) => state.setSessionId);
 
-  const signInWithGoogle = async () => {
-    try {
-      const pluginCode = uuidv4();
-      const loginUrl = `http://localhost:3000/plugin-login?code=${pluginCode}`;
-      window.open(loginUrl, "_blank");
+  const handleSignIn = async () => {
+    const pluginCode = uuidv4();
+    const loginUrl = `http://localhost:3000/plugin-login?code=${pluginCode}`;
+    window.open(loginUrl, "_blank");
 
-      // Connect to WebSocket using pluginCode as channel ID
-      connectToWebSocket(pluginCode, (sessionId: string) => {
-        console.log("Session ID received via WebSocket:", sessionId);
-        setSessionId(sessionId); // Store sessionId in Zustand store
-      });
-    } catch (error) {
-      console.error("Error during sign-in:", error);
-    }
+    connectToWebSocket(pluginCode, (sessionId: string) => {
+      console.log("Received session ID:", sessionId);
+      setSessionId(sessionId);
+    });
   };
 
   return (
-    <div>
-      <button className="btn" onClick={signInWithGoogle}>
-        Sign In with Google
-      </button>
-    </div>
+    <button
+      className="px-4 py-2 font-semibold text-white transition-colors duration-200 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      onClick={handleSignIn}
+    >
+      Sign In with Google
+    </button>
   );
 };

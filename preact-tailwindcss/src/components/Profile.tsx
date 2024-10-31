@@ -1,6 +1,6 @@
 import { h } from "preact";
 import { useEffect, useState } from "preact/hooks";
-import { useUserStore } from "../lib/useUserStore"; 
+import { useUserStore } from "../lib/useUserStore";
 
 export const Profile = () => {
   const profile = useUserStore((state) => state.profile);
@@ -18,28 +18,24 @@ export const Profile = () => {
         return;
       }
 
-      console.log("Fetching profile data...", sessionId);
-
       try {
         const response = await fetch(`http://localhost:8087/api/me`, {
-          method: "GET",
           headers: {
-            ContentType: "application/json",
-            Authorization: `Bearer ${sessionId}`, // Use sessionId from Zustand store
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionId}`,
           },
         });
+        if (!response.ok) throw new Error(`Failed to fetch profile`);
 
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch profile. Status: ${response.status}`,
-          );
-        }
+        const { data } = await response.json();
 
-        const data = await response.json();
-        setProfile(data); // Update Zustand store with fetched profile
-        setErrorMessage(null); // Clear any previous error
+        setProfile({
+          ...data,
+          // remove it from image =s96-c
+          image: data.image.replace(/=s96-c$/, ""),
+        });
+        setErrorMessage(null);
       } catch (error: any) {
-        console.error("Error fetching profile:", error);
         setErrorMessage("Error fetching profile data. Please try again.");
       }
     };
@@ -47,59 +43,59 @@ export const Profile = () => {
     fetchProfileData();
   }, [sessionId, setProfile]);
 
-  // API call to /api/private-api
+  // Call private API
   const callPrivateApi = async () => {
     if (!sessionId) return;
 
     try {
-      const response = await fetch("http://localhost:8087/api/me", {
-        method: "GET",
+      const response = await fetch("http://localhost:8087/api/private-api", {
         headers: {
-          ContentType: "application/json",
-          Authorization: `Bearer ${sessionId}`, // Use sessionId from Zustand store
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionId}`,
         },
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
       const data = await response.json();
       setApiResponse(JSON.stringify(data, null, 2));
     } catch (error: any) {
-      console.error("Error calling private API:", error);
-      setApiResponse(`Error: ${error?.message || "Unknown error"}`);
+      setApiResponse(`Error: ${error.message || "Unknown error"}`);
     }
   };
 
-  // Render profile or error message if no sessionId
-  if (errorMessage) return <div>{errorMessage}</div>;
-
+  if (errorMessage) return <div className="text-red-500">{errorMessage}</div>;
   if (!profile) return <div>Loading profile...</div>;
 
-  return (
-    <div>
-      <pre>
-        <code>{JSON.stringify(profile, null, 2)}</code>
-      </pre>
-      <h1 className="text-2xl">Welcome, {profile.name}</h1>
-      {profile.image && <img src={profile.image} alt="profile" />}
-      <p>Email: {profile.email}</p>
-      <hr />
-      <p>Bearer Token: {sessionId}</p>
+  console.log("Profile:", profile);
 
-      {/* Button to call the private API */}
-      <button className="btn" onClick={callPrivateApi}>
+  return (
+    <div className="max-w-md p-4 mx-auto space-y-4 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-gray-800">
+        Welcome, {profile.name}
+      </h1>
+      {profile.image && (
+        <img
+          src={profile.image}
+          alt="profile"
+          className="w-24 h-24 mx-auto rounded-full"
+        />
+      )}
+      <p className="text-center text-gray-600">Email: {profile.email}</p>
+      <p className="text-sm text-center text-gray-400">
+        Bearer Token: {sessionId}
+      </p>
+
+      <button
+        className="w-full px-4 py-2 font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        onClick={callPrivateApi}
+      >
         Call Private API
       </button>
 
-      {/* Display the private API response */}
       {apiResponse && (
-        <div>
-          <h2>Private API Response:</h2>
-          <pre>
-            <code>{apiResponse}</code>
-          </pre>
+        <div className="p-3 mt-4 text-sm text-gray-700 bg-gray-100 rounded-md">
+          <h2 className="mb-2 font-semibold">Private API Response:</h2>
+          <pre className="whitespace-pre-wrap">{apiResponse}</pre>
         </div>
       )}
     </div>

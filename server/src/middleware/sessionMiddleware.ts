@@ -9,6 +9,7 @@ interface Session {
     email: string;
     image?: string;
   };
+  plugin_code?: string; // pass plugin_code to session from client side
   sessionToken: string;
   expiresAt: string;
 }

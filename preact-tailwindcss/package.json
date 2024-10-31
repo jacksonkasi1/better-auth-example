@@ -2,8 +2,8 @@
   "dependencies": {
     "@create-figma-plugin/ui": "^3.2.1",
     "@create-figma-plugin/utilities": "^3.2.1",
-    "better-auth": "^0.5.4-beta.6",
-    "preact": ">=10"
+    "preact": ">=10",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "@create-figma-plugin/build": "^3.2.1",

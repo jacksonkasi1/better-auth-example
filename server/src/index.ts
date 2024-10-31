@@ -4,14 +4,12 @@ import { auth } from "./auth.ts"; // Import your Better Auth instance
 import { sessionMiddleware } from "./middleware/sessionMiddleware.ts"; // Import session middleware
 import { toNodeHandler } from "better-auth/node"; // Use toNodeHandler for Node.js-based frameworks
 import morgan from "morgan"; // Import morgan
-import querystring from "node:querystring";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
+import { WebSocketServer, WebSocket as WsWebSocket } from "ws";
+import { parse } from "node:url";
+import cookieParser from "cookie-parser";
 
 const app = express();
-
-// In-memory storage for clients connected via SSE
-const sseClients = new Map();
+const wsClients = new Map<string, WsWebSocket>();
 
 // Enable CORS for your frontend
 app.use(
@@ -32,14 +30,52 @@ app.use((req, res, next) => {
 // Use morgan for logging incoming requests
 app.use(morgan("combined")); // Logs in Apache combined format
 
+// Enable cookie parsing
+app.use(cookieParser()); // Add cookie-parser middleware
+
 // Apply session middleware to every request
 app.use(sessionMiddleware);
 
-// Handle authentication routes using toNodeHandler from Better Auth
+// WebSocket Server setup
+const wss = new WebSocketServer({ port: 8080 });
+wss.on("connection", (ws, req) => {
+  const query = parse(req.url || "", true).query;
+  const pluginCode = query.plugin_code as string;
+
+  console.log("WSS pluginCode:", pluginCode);
+
+  if (pluginCode) {
+    wsClients.set(pluginCode, ws); // Map client to pluginCode
+
+    ws.on("close", () => {
+      wsClients.delete(pluginCode);
+    });
+  }
+});
+
+// Handle authentication routes using Better Auth
 app.all("/api/auth/*", async (req, res, next) => {
   try {
-    console.log("Request body:", req.body);
     await toNodeHandler(auth)(req, res);
+
+    const session = req.session;
+    // Retrieve plugin_code from cookies
+    const pluginCode = req?.cookies?.plugin_code as string | undefined;
+
+    console.log("Auth pluginCode:", pluginCode);
+
+    if (pluginCode && session && session.user && session.user.id) {
+      const sessionId = session.sessionToken; // Bearer token
+
+      // Send session ID only to the WebSocket client with matching pluginCode
+      const client = wsClients.get(pluginCode);
+      if (client && client.readyState === WsWebSocket.OPEN) {
+        client.send(JSON.stringify({ sessionId }));
+        client.close(); // Close the WebSocket connection after sending the session ID
+        wsClients.delete(pluginCode); // Remove client from the map
+        console.log(`WebSocket connection closed. 🔴 Plugin code: ${pluginCode}`);
+      }
+    }
   } catch (error) {
     console.error("Error in Better Auth:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -49,29 +85,12 @@ app.all("/api/auth/*", async (req, res, next) => {
 // Parse incoming JSON requests
 app.use(express.json());
 
-// SSE endpoint for Figma plugin to receive login updates
-app.get("/api/sse", (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.flushHeaders();
-
-  const clientId = uuidv4();
-  sseClients.set(clientId, res);
-
-  req.on("close", () => {
-    sseClients.delete(clientId);
-    res.end();
-  });
-});
-
 // Define a public API route (accessible to everyone)
 app.get("/api/public-api", (req: Request, res: Response) => {
   res.json({
     message: "This is public data accessible to anyone.",
   });
 });
-
 
 // Define a private API route (only accessible if authenticated)
 // @ts-ignore
@@ -89,6 +108,24 @@ app.get("/api/private-api", (req: Request, res: Response) => {
     user: session.user,
   });
 });
+
+// @ts-ignore
+app.get("/api/me", (req: Request, res: Response) => {
+  const session = req.session;
+
+  // Check if the session or user is missing, respond with 401 Unauthorized
+  if (!session || !session.user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // If session exists, return mock private API data
+  res.json({
+    message: "This is private data, accessible only to authenticated users.",
+    data: session.user,
+  });
+});
+
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -1,11 +1,5 @@
-import { h} from "preact";
+import { h } from "preact";
 import { useEffect, useState } from "preact/hooks";
-// @ts-ignore
-import { createAuthClient } from "better-auth/react";
-
-const { useSession } = createAuthClient({
-  baseURL: "http://localhost:5000/api/auth", // Ensure this URL points to your auth server
-});
 
 interface UserProfile {
   id: string;
@@ -18,21 +12,6 @@ export const Profile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [bearerToken, setBearerToken] = useState<string | null>(null);
   const [apiResponse, setApiResponse] = useState<string | null>(null); // Store API response
-  const [isHydrated, setIsHydrated] = useState(false); // Track hydration state
-  const { data, isPending, error } = useSession(); // Use the useSession hook
-
-  useEffect(() => {
-    setIsHydrated(true); // Mark hydrated as true when client-side rendering starts
-  }, []);
-
-  useEffect(() => {
-    if (data && data.session.id) {
-      setProfile(data.user);
-      setBearerToken(data.session.id); // Set the bearer token after successful authentication
-    } else {
-      setProfile(null);
-    }
-  }, [data]);
 
   // API call to /api/private-api
   const callPrivateApi = async () => {
@@ -57,15 +36,6 @@ export const Profile = () => {
       setApiResponse(`Error: ${error?.message || "Unknown error"}`);
     }
   };
-
-  // Return nothing or fallback if hydration hasn't completed
-  if (!isHydrated) return null;
-
-  if (isPending) return <div>Loading...</div>;
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   if (!profile) return <div>No profile found. Please log in.</div>;
 

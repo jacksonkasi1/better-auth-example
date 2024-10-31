@@ -45,4 +45,20 @@ app.get("/api/me", (c: Context) => {
   });
 });
 
+// Protected route that requires a session
+app.get("/api/private-api", (c: Context) => {
+  const user = c.get("user") as User | null;
+
+  // If no user is found, respond with 401 Unauthorized
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  // If user exists, respond with user data
+  return c.json({
+    message: "This is private data, accessible only to authenticated users.",
+    data: "this is secret data",
+  });
+});
+
 Deno.serve({ port: 8087 }, app.fetch);

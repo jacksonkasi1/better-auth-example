@@ -1,5 +1,5 @@
 import { type Context, type Next } from "@hono/hono";
-import { auth } from "../auth.ts"; // Import Better Auth instance
+import { auth } from "../auth.ts";
 
 export const sessionMiddleware = async (c: Context, next: Next) => {
   try {

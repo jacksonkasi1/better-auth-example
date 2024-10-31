@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createAuthClient } from "better-auth/react"; // Correct import for React client
+import { createAuthClient } from "better-auth/react";
 
 const { useSession } = createAuthClient({
   baseURL: "http://localhost:5000/api/auth", // Ensure this URL points to your auth server

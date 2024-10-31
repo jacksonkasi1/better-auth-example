@@ -37,7 +37,4 @@ export const auth = betterAuth({
     enabled: true,
     trustedProviders: ["google", "github"],
   },
-  advanced: {
-    disableCSRFCheck: true, // Disable CSRF check for API routes
-  },
 });

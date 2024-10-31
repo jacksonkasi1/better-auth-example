@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express"; // Import Express types
-import { auth } from "../auth.ts"; // Import your Better Auth instance
+import { Request, Response, NextFunction } from "express";
+import { auth } from "../auth.ts";
 
 // Define the session interface (if needed, based on Better Auth session structure)
 interface Session {

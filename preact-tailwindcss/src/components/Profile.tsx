@@ -1,6 +1,6 @@
 import { h } from "preact";
 import { useEffect, useState } from "preact/hooks";
-import { useUserStore } from "../lib/useUserStore"; // Import Zustand store
+import { useUserStore } from "../lib/useUserStore"; 
 
 export const Profile = () => {
   const profile = useUserStore((state) => state.profile);

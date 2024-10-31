@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { auth } from "./auth.ts"; // Import your Better Auth instance
-import { sessionMiddleware } from "./middleware/sessionMiddleware.ts"; // Import session middleware
-import { toNodeHandler } from "better-auth/node"; // Use toNodeHandler for Node.js-based frameworks
-import morgan from "morgan"; // Import morgan
+import { auth } from "./auth.ts";
+import { sessionMiddleware } from "./middleware/sessionMiddleware.ts";
+import { toNodeHandler } from "better-auth/node";
+import morgan from "morgan";
 import { WebSocketServer, WebSocket as WsWebSocket } from "ws";
 import { parse } from "node:url";
 import cookieParser from "cookie-parser";

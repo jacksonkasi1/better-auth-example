@@ -3,9 +3,9 @@ import { auth } from "../auth.ts"; // Import Better Auth instance
 
 export const sessionMiddleware = async (c: Context, next: Next) => {
   try {
-    var headers = c.req.raw.headers;
-    // @ts-ignore
-    const session = await auth.api.getSession({headers});
+    // Clone headers to bypass immutability
+    const headers = new Headers(c.req.raw.headers);
+    const session = await auth.api.getSession({ headers });
 
     if (!session) {
       c.set("user", null);
